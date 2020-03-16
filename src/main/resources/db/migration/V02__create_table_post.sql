@@ -1,0 +1,8 @@
+CREATE TABLE post (
+	id BIGINT(20) PRIMARY KEY AUTO_INCREMENT,
+	title VARCHAR(50) NOT NULL,
+	text TEXT NOT NULL,
+	publication_date DATE,
+	id_author BIGINT(20) NOT NULL,
+	FOREIGN KEY (id_author) REFERENCES author (id)
+)ENGINE InnoDB DEFAULT CHARSET=utf8;
