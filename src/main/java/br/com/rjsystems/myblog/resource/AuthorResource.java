@@ -1,18 +1,24 @@
 package br.com.rjsystems.myblog.resource;
 
+import java.util.concurrent.ExecutionException;
+
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.rjsystems.myblog.dto.AuthorDtoGet;
+import br.com.rjsystems.myblog.dto.author.AuthorDtoGet;
 import br.com.rjsystems.myblog.model.Author;
 import br.com.rjsystems.myblog.service.AuthorService;
 
@@ -23,15 +29,27 @@ public class AuthorResource {
 	@Autowired
 	private AuthorService authorService;
 
+	@PostMapping
+	public ResponseEntity<Author> insertAuthor(@Valid @RequestBody Author author, HttpServletResponse response) {
+		Author authorSaved = authorService.save(author, response);
+		return ResponseEntity.status(HttpStatus.CREATED).body(authorSaved);
+	}
+	
 	@GetMapping("/{id}")
-	public ResponseEntity<AuthorDtoGet> getAuthor(@PathVariable Long id) {
+	public ResponseEntity<AuthorDtoGet> getAuthor(@PathVariable Long id) throws InterruptedException, ExecutionException {
 		AuthorDtoGet author = authorService.findById(id);
 		return author != null ? ResponseEntity.ok(author) : ResponseEntity.notFound().build();
 	}
-
-	@PostMapping
-	public ResponseEntity<Author> insertAuthor(@Valid @RequestBody Author author) {
-		Author authorSaved = authorService.save(author);
-		return ResponseEntity.status(HttpStatus.CREATED).body(authorSaved);
+	
+	@PutMapping("/{id}")
+	public ResponseEntity<Author> update(@PathVariable Long id, @Valid @RequestBody Author author) {
+		Author savedAuthor = authorService.update(id, author);
+		return ResponseEntity.ok(savedAuthor);
+	}
+	
+	@DeleteMapping("/{id}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void delete(@PathVariable Long id) {
+		authorService.delete(id);
 	}
 }

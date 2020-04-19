@@ -1,4 +1,4 @@
-package br.com.rjsystems.myblog.dto;
+package br.com.rjsystems.myblog.dto.author;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

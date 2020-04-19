@@ -10,9 +10,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "post")
@@ -22,25 +19,25 @@ public class Post {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@NotBlank
-	@Size(max = 50)
 	private String title;
 	
 	private String topic;
 	
 	private String subtopic;
 	
-	@NotBlank
+	@Column(columnDefinition = "text")
 	private String text;
 	
-	@NotNull
 	@Column(name = "publication_date")
 	private LocalDate publicationDate;
 	
-	@NotNull
 	@ManyToOne
-	@JoinColumn(name = "id_author")
+	@JoinColumn(name = "id_author", nullable = false)
 	private Author author;
+	
+	public Post() {
+		this.author = new Author();
+	}
 
 	public Long getId() {
 		return id;
@@ -56,6 +53,22 @@ public class Post {
 
 	public void setTitle(String title) {
 		this.title = title;
+	}
+
+	public String getTopic() {
+		return topic;
+	}
+
+	public void setTopic(String topic) {
+		this.topic = topic;
+	}
+
+	public String getSubtopic() {
+		return subtopic;
+	}
+
+	public void setSubtopic(String subtopic) {
+		this.subtopic = subtopic;
 	}
 
 	public String getText() {
