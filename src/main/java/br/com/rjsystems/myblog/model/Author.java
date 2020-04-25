@@ -20,6 +20,10 @@ public class Author {
 	@Size(max = 100)
 	private String login;
 
+	private String name;
+	private String avatar;
+	private String biography;
+
 	public Long getId() {
 		return id;
 	}
@@ -34,6 +38,30 @@ public class Author {
 
 	public void setLogin(String login) {
 		this.login = login;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getAvatar() {
+		return avatar;
+	}
+
+	public void setAvatar(String avatar) {
+		this.avatar = avatar;
+	}
+
+	public String getBiography() {
+		return biography;
+	}
+
+	public void setBiography(String biography) {
+		this.biography = biography;
 	}
 
 	@Override

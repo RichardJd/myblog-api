@@ -6,10 +6,13 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
+import br.com.rjsystems.myblog.dto.author.AuthorDtoGet;
 import br.com.rjsystems.myblog.dto.post.PostDtoCreate;
 import br.com.rjsystems.myblog.dto.post.PostDtoGet;
 import br.com.rjsystems.myblog.event.ResourceCreatedEvent;
@@ -36,7 +39,7 @@ public class PostServiceImpl implements PostService {
 
 		if (!posts.isEmpty()) {
 			posts.forEach(p -> {
-				var authorDtoGet = authorService.importAuthorFromGithub(p.getAuthor());
+				var authorDtoGet = AuthorDtoGet.converterToDto(p.getAuthor());
 				var postDtoGet = PostDtoGet.converter(p);
 				postDtoGet.setAuthor(authorDtoGet);
 				postsDtoGets.add(postDtoGet);
@@ -50,8 +53,8 @@ public class PostServiceImpl implements PostService {
 		var post = postRepository.findById(id);
 		
 		if (post.isPresent()) {
-			var authorDtoGet = authorService.importAuthorFromGithub(post.get().getAuthor());
 			var postDtoGet = PostDtoGet.converter(post.get());
+			var authorDtoGet = AuthorDtoGet.converterToDto(post.get().getAuthor());
 			postDtoGet.setAuthor(authorDtoGet);
 			
 			return postDtoGet;
@@ -75,15 +78,30 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
-	public PostDtoGet update(Long id, PostDtoCreate post) {
-		// TODO Auto-generated method stub
-		return null;
+	public PostDtoGet update(Long id, PostDtoCreate postDtoCreate) {
+		var post = PostDtoCreate.converterToPost(postDtoCreate);
+		var optionalPost = postRepository.findById(id);
+		
+		if(optionalPost.isEmpty()) {
+			throw new EmptyResultDataAccessException(1);
+		}
+		
+		var postSaved = optionalPost.get();
+		BeanUtils.copyProperties(post, postSaved, "id");
+		
+		postSaved.setPublicationDate(LocalDate.now());
+		postSaved = postRepository.save(postSaved);
+		
+		var postDtoGet = PostDtoGet.converter(postSaved);
+		var author = authorService.findById(post.getAuthor().getId());
+		postDtoGet.setAuthor(author);
+		
+		return postDtoGet;
 	}
 
 	@Override
 	public void delete(Long id) {
-		// TODO Auto-generated method stub
-
+		postRepository.deleteById(id);
 	}
 
 }

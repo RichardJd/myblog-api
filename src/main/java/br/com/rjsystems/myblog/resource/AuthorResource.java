@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.rjsystems.myblog.dto.author.AuthorDtoCreate;
 import br.com.rjsystems.myblog.dto.author.AuthorDtoGet;
 import br.com.rjsystems.myblog.model.Author;
 import br.com.rjsystems.myblog.service.AuthorService;
@@ -30,20 +31,20 @@ public class AuthorResource {
 	private AuthorService authorService;
 
 	@PostMapping
-	public ResponseEntity<Author> insertAuthor(@Valid @RequestBody Author author, HttpServletResponse response) {
-		Author authorSaved = authorService.save(author, response);
+	public ResponseEntity<Author> insert(@Valid @RequestBody AuthorDtoCreate authorDtoCreate, HttpServletResponse response) {
+		Author authorSaved = authorService.save(authorDtoCreate, response);
 		return ResponseEntity.status(HttpStatus.CREATED).body(authorSaved);
 	}
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<AuthorDtoGet> getAuthor(@PathVariable Long id) throws InterruptedException, ExecutionException {
+	public ResponseEntity<AuthorDtoGet> findById(@PathVariable Long id) throws InterruptedException, ExecutionException {
 		AuthorDtoGet author = authorService.findById(id);
 		return author != null ? ResponseEntity.ok(author) : ResponseEntity.notFound().build();
 	}
 	
 	@PutMapping("/{id}")
-	public ResponseEntity<Author> update(@PathVariable Long id, @Valid @RequestBody Author author) {
-		Author savedAuthor = authorService.update(id, author);
+	public ResponseEntity<Author> update(@PathVariable Long id, @Valid @RequestBody AuthorDtoCreate authorDtoCreate) {
+		Author savedAuthor = authorService.update(id, authorDtoCreate);
 		return ResponseEntity.ok(savedAuthor);
 	}
 	
