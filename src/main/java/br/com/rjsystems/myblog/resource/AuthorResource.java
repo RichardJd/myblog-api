@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.rjsystems.myblog.dto.author.AuthorDtoCreate;
 import br.com.rjsystems.myblog.dto.author.AuthorDtoGet;
-import br.com.rjsystems.myblog.model.Author;
 import br.com.rjsystems.myblog.service.AuthorService;
 
 @RestController
@@ -31,8 +30,8 @@ public class AuthorResource {
 	private AuthorService authorService;
 
 	@PostMapping
-	public ResponseEntity<Author> insert(@Valid @RequestBody AuthorDtoCreate authorDtoCreate, HttpServletResponse response) {
-		Author authorSaved = authorService.save(authorDtoCreate, response);
+	public ResponseEntity<AuthorDtoGet> insert(@Valid @RequestBody AuthorDtoCreate authorDtoCreate, HttpServletResponse response) {
+		AuthorDtoGet authorSaved = authorService.save(authorDtoCreate, response);
 		return ResponseEntity.status(HttpStatus.CREATED).body(authorSaved);
 	}
 	
@@ -43,8 +42,8 @@ public class AuthorResource {
 	}
 	
 	@PutMapping("/{id}")
-	public ResponseEntity<Author> update(@PathVariable Long id, @Valid @RequestBody AuthorDtoCreate authorDtoCreate) {
-		Author savedAuthor = authorService.update(id, authorDtoCreate);
+	public ResponseEntity<AuthorDtoGet> update(@PathVariable Long id, @Valid @RequestBody AuthorDtoCreate authorDtoCreate) {
+		AuthorDtoGet savedAuthor = authorService.update(id, authorDtoCreate);
 		return ResponseEntity.ok(savedAuthor);
 	}
 	

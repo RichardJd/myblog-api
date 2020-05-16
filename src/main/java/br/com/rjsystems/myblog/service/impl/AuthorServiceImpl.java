@@ -39,27 +39,29 @@ public class AuthorServiceImpl implements AuthorService {
 	}
 
 	@Override
-	public Author save(AuthorDtoCreate authorDtoCreate, HttpServletResponse response) {
+	public AuthorDtoGet save(AuthorDtoCreate authorDtoCreate, HttpServletResponse response) {
 		var authorDtoGet = getFromGithub.importAuthor(authorDtoCreate);
 		var author = AuthorDtoGet.convertToAuthor(authorDtoGet);
 
 		var savedAuthor = authorRepository.save(author);
 		publisher.publishEvent(new ResourceCreatedEvent(this, savedAuthor.getId(), response));
 
-		return savedAuthor;
+		return AuthorDtoGet.converterToDto(savedAuthor);
 	}
 
 	@Override
-	public Author update(Long id, AuthorDtoCreate authorDtoCreate) {
+	public AuthorDtoGet update(Long id, AuthorDtoCreate authorDtoCreate) {
 		var authorDtoGet = getFromGithub.importAuthor(authorDtoCreate);
-		var savedAuthor = findAuthorById(id);
+		var savedAuthor = getAuthor(id);
 		
 		savedAuthor.setLogin(authorDtoCreate.getLogin());
 		savedAuthor.setName(authorDtoGet.getName());
 		savedAuthor.setAvatar(authorDtoGet.getAvatar());
 		savedAuthor.setBiography(authorDtoGet.getBiography());
+		
+		savedAuthor = authorRepository.save(savedAuthor);
 
-		return authorRepository.save(savedAuthor);
+		return AuthorDtoGet.converterToDto(savedAuthor);
 	}
 
 	@Override
@@ -67,7 +69,7 @@ public class AuthorServiceImpl implements AuthorService {
 		authorRepository.deleteById(id);
 	}
 
-	private Author findAuthorById(Long id) {
+	private Author getAuthor(Long id) {
 		var author = authorRepository.findById(id);
 		if (author.isEmpty()) {
 			throw new EmptyResultDataAccessException(1);

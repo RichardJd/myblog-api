@@ -6,4 +6,5 @@ import br.com.rjsystems.myblog.model.Author;
 
 public interface AuthorRepository extends JpaRepository<Author, Long> {
 
+	public Author findByLogin(String login);
 }
