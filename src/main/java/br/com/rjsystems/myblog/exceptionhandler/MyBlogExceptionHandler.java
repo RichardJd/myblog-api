@@ -27,30 +27,31 @@ public class MyBlogExceptionHandler extends ResponseEntityExceptionHandler {
 
 	@Autowired
 	private MessageSource messageSource;
-	
+
 	@Override
 	protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
 			HttpHeaders headers, HttpStatus status, WebRequest request) {
-		
+
 		String messageUser = messageSource.getMessage("invalid.message", null, LocaleContextHolder.getLocale());
 		String messageDev = ex.getCause() != null ? ex.getCause().toString() : ex.toString();
-		
+
 		List<Error> errors = Arrays.asList(new Error(messageUser, messageDev));
-		
-		return handleExceptionInternal(ex, errors , headers, status, request);
+
+		return handleExceptionInternal(ex, errors, headers, status, request);
 	}
-	
+
 	@Override
 	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
 			HttpHeaders headers, HttpStatus status, WebRequest request) {
-		
+
 		var errors = createListError(ex.getBindingResult());
-		
+
 		return handleExceptionInternal(ex, errors, headers, status, request);
 	}
 
 	@ExceptionHandler({ HttpStatusCodeException.class })
 	public ResponseEntity<Object> handleHttpStatusCodeException(HttpStatusCodeException ex, WebRequest request) {
+
 		var messageUser = messageSource.getMessage("github.not-found", null, LocaleContextHolder.getLocale());
 		var messageDev = ex.getCause() != null ? ex.getCause().toString() : ex.toString();
 
@@ -65,30 +66,33 @@ public class MyBlogExceptionHandler extends ResponseEntityExceptionHandler {
 
 		var messageUser = messageSource.getMessage("resource.not-found", null, LocaleContextHolder.getLocale());
 		var messageDev = ex.toString();
-		
+
 		List<Error> errors = Arrays.asList(new Error(messageUser, messageDev));
 		return handleExceptionInternal(ex, errors, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
 	}
-	
+
 	@ExceptionHandler({ DataIntegrityViolationException.class })
-	public ResponseEntity<Object> handleDataIntegrityViolationException(DataIntegrityViolationException ex, WebRequest request) {
-		var messageUser = messageSource.getMessage("resource.operation-not-allowed",  null, LocaleContextHolder.getLocale());
+	public ResponseEntity<Object> handleDataIntegrityViolationException(DataIntegrityViolationException ex,
+			WebRequest request) {
+
+		var messageUser = messageSource.getMessage("resource.operation-not-allowed", null,
+				LocaleContextHolder.getLocale());
 		var messageDev = ExceptionUtils.getRootCauseMessage(ex);
-		
+
 		List<Error> errors = Arrays.asList(new Error(messageUser, messageDev));
-		
+
 		return handleExceptionInternal(ex, errors, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
 	}
-	
+
 	private List<Error> createListError(BindingResult bindingResult) {
 		var errors = new ArrayList<Error>();
-		
+
 		bindingResult.getFieldErrors().forEach(f -> {
 			var messageUser = messageSource.getMessage(f, LocaleContextHolder.getLocale());
 			var messageDev = f.toString();
-			errors.add(new Error(messageUser, messageDev));			
+			errors.add(new Error(messageUser, messageDev));
 		});
-		
+
 		return errors;
 	}
 

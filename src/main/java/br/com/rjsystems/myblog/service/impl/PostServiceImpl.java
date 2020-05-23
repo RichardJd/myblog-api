@@ -2,7 +2,6 @@ package br.com.rjsystems.myblog.service.impl;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -10,6 +9,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import br.com.rjsystems.myblog.dto.author.AuthorDtoGet;
@@ -17,6 +19,7 @@ import br.com.rjsystems.myblog.dto.post.PostDtoCreate;
 import br.com.rjsystems.myblog.dto.post.PostDtoGet;
 import br.com.rjsystems.myblog.event.ResourceCreatedEvent;
 import br.com.rjsystems.myblog.repository.PostRepository;
+import br.com.rjsystems.myblog.repository.filter.PostFilter;
 import br.com.rjsystems.myblog.service.AuthorService;
 import br.com.rjsystems.myblog.service.PostService;
 
@@ -33,19 +36,22 @@ public class PostServiceImpl implements PostService {
 	private ApplicationEventPublisher publisher;
 
 	@Override
-	public List<PostDtoGet> findAll() {
-		var postsDtoGets = new ArrayList<PostDtoGet>();
-		var posts = postRepository.findAll();
+	public Page<PostDtoGet> findAll(PostFilter postFilter, Pageable pageable) {
+		var postsDtoGet = new ArrayList<PostDtoGet>();
+		var posts = postRepository.filtrate(postFilter, pageable);
 
 		if (!posts.isEmpty()) {
 			posts.forEach(p -> {
 				var authorDtoGet = AuthorDtoGet.converterToDto(p.getAuthor());
 				var postDtoGet = PostDtoGet.converter(p);
 				postDtoGet.setAuthor(authorDtoGet);
-				postsDtoGets.add(postDtoGet);
+				postsDtoGet.add(postDtoGet);
 			});
 		}
-		return postsDtoGets;
+		
+		Page<PostDtoGet> page = new PageImpl<>(postsDtoGet, pageable, posts.getTotalElements());
+		
+		return page;
 	}
 
 	@Override
