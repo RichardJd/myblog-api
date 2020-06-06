@@ -63,9 +63,9 @@ public class PostRepositoryImpl implements PostRepositoryQuery {
 	}
 
 	private void addRestrictionsPagination(TypedQuery<Post> query, Pageable pageable) {
-		int currentPage = pageable.getPageNumber();
-		int totalRecords = pageable.getPageSize();
-		int firstPageRecord = currentPage * totalRecords;
+		var currentPage = pageable.getPageNumber();
+		var totalRecords = pageable.getPageSize();
+		var firstPageRecord = currentPage * totalRecords;
 
 		query.setFirstResult(firstPageRecord);
 		query.setMaxResults(totalRecords);
