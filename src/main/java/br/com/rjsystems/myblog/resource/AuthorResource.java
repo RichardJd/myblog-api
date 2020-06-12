@@ -8,6 +8,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,24 +31,28 @@ public class AuthorResource {
 	private AuthorService authorService;
 
 	@PostMapping
+	@PreAuthorize("hasAuthority('ROLE_REGISTER_AUTHOR') and #oauth2.hasScope('write')")
 	public ResponseEntity<AuthorDtoGet> insert(@Valid @RequestBody AuthorDtoCreate authorDtoCreate, HttpServletResponse response) {
 		AuthorDtoGet authorSaved = authorService.save(authorDtoCreate, response);
 		return ResponseEntity.status(HttpStatus.CREATED).body(authorSaved);
 	}
 	
 	@GetMapping("/{id}")
+	@PreAuthorize("hasAuthority('ROLE_SEARCH_AUTHOR') and #oauth2.hasScope('read')")
 	public ResponseEntity<AuthorDtoGet> findById(@PathVariable Long id) throws InterruptedException, ExecutionException {
 		AuthorDtoGet author = authorService.findById(id);
 		return author != null ? ResponseEntity.ok(author) : ResponseEntity.notFound().build();
 	}
 	
 	@PutMapping("/{id}")
+	@PreAuthorize("hasAuthority('ROLE_REGISTER_AUTHOR') and #oauth2.hasScope('write')")
 	public ResponseEntity<AuthorDtoGet> update(@PathVariable Long id, @Valid @RequestBody AuthorDtoCreate authorDtoCreate) {
 		AuthorDtoGet savedAuthor = authorService.update(id, authorDtoCreate);
 		return ResponseEntity.ok(savedAuthor);
 	}
 	
 	@DeleteMapping("/{id}")
+	@PreAuthorize("hasAuthority('ROLE_REMOVE_AUTHOR') and #oauth2.hasScope('write')")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void delete(@PathVariable Long id) {
 		authorService.delete(id);
