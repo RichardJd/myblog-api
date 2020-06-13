@@ -32,10 +32,10 @@ public class MyBlogExceptionHandler extends ResponseEntityExceptionHandler {
 	protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
 			HttpHeaders headers, HttpStatus status, WebRequest request) {
 
-		String messageUser = messageSource.getMessage("invalid.message", null, LocaleContextHolder.getLocale());
-		String messageDev = ex.getCause() != null ? ex.getCause().toString() : ex.toString();
+		var messageUser = messageSource.getMessage("invalid.message", null, LocaleContextHolder.getLocale());
+		var messageDev = ex.getCause() != null ? ex.getCause().toString() : ex.toString();
 
-		List<Error> errors = Arrays.asList(new Error(messageUser, messageDev));
+		var errors = Arrays.asList(new Error(messageUser, messageDev));
 
 		return handleExceptionInternal(ex, errors, headers, status, request);
 	}
@@ -67,7 +67,7 @@ public class MyBlogExceptionHandler extends ResponseEntityExceptionHandler {
 		var messageUser = messageSource.getMessage("resource.not-found", null, LocaleContextHolder.getLocale());
 		var messageDev = ex.toString();
 
-		List<Error> errors = Arrays.asList(new Error(messageUser, messageDev));
+		var errors = Arrays.asList(new Error(messageUser, messageDev));
 		return handleExceptionInternal(ex, errors, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
 	}
 
@@ -79,7 +79,7 @@ public class MyBlogExceptionHandler extends ResponseEntityExceptionHandler {
 				LocaleContextHolder.getLocale());
 		var messageDev = ExceptionUtils.getRootCauseMessage(ex);
 
-		List<Error> errors = Arrays.asList(new Error(messageUser, messageDev));
+		var errors = Arrays.asList(new Error(messageUser, messageDev));
 
 		return handleExceptionInternal(ex, errors, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
 	}

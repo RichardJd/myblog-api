@@ -3,13 +3,9 @@ package br.com.rjsystems.myblog.service.impl;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
-import br.com.rjsystems.myblog.dto.author.AuthorDtoCreate;
-import br.com.rjsystems.myblog.dto.author.AuthorDtoGet;
-import br.com.rjsystems.myblog.event.ResourceCreatedEvent;
 import br.com.rjsystems.myblog.model.Author;
 import br.com.rjsystems.myblog.repository.AuthorRepository;
 import br.com.rjsystems.myblog.service.AuthorService;
@@ -22,46 +18,35 @@ public class AuthorServiceImpl implements AuthorService {
 	private AuthorRepository authorRepository;
 
 	@Autowired
-	private ApplicationEventPublisher publisher;
-
-	@Autowired
 	private GetFromGithub getFromGithub;
 
 	@Override
-	public AuthorDtoGet findById(Long id) {
+	public Author findById(Long id) {
 		var author = authorRepository.findById(id);
-		if (author.isEmpty()) {
-			return null;
-		}
-
-		var authorDto = AuthorDtoGet.converterToDto(author.get());
-		return authorDto;
+		return author.isEmpty() ? null : author.get();
 	}
 
 	@Override
-	public AuthorDtoGet save(AuthorDtoCreate authorDtoCreate, HttpServletResponse response) {
-		var authorDtoGet = getFromGithub.importAuthor(authorDtoCreate);
-		var author = AuthorDtoGet.convertToAuthor(authorDtoGet);
-
+	public Author save(Author author, HttpServletResponse response) {
+		author = getFromGithub.importAuthor(author.getLogin());
 		var savedAuthor = authorRepository.save(author);
-		publisher.publishEvent(new ResourceCreatedEvent(this, savedAuthor.getId(), response));
 
-		return AuthorDtoGet.converterToDto(savedAuthor);
+		return savedAuthor;
 	}
 
 	@Override
-	public AuthorDtoGet update(Long id, AuthorDtoCreate authorDtoCreate) {
-		var authorDtoGet = getFromGithub.importAuthor(authorDtoCreate);
+	public Author update(Long id, Author author) {
+		author = getFromGithub.importAuthor(author.getLogin());
 		var savedAuthor = getAuthor(id);
 		
-		savedAuthor.setLogin(authorDtoCreate.getLogin());
-		savedAuthor.setName(authorDtoGet.getName());
-		savedAuthor.setAvatar(authorDtoGet.getAvatar());
-		savedAuthor.setBiography(authorDtoGet.getBiography());
+		savedAuthor.setLogin(author.getLogin());
+		savedAuthor.setName(author.getName());
+		savedAuthor.setAvatar(author.getAvatar());
+		savedAuthor.setBiography(author.getBiography());
 		
 		savedAuthor = authorRepository.save(savedAuthor);
 
-		return AuthorDtoGet.converterToDto(savedAuthor);
+		return savedAuthor;
 	}
 
 	@Override

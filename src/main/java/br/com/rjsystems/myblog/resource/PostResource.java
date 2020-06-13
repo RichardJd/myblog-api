@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -19,8 +20,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.rjsystems.myblog.dto.post.PostConverter;
 import br.com.rjsystems.myblog.dto.post.PostDtoCreate;
 import br.com.rjsystems.myblog.dto.post.PostDtoGet;
+import br.com.rjsystems.myblog.event.ResourceCreatedEvent;
+import br.com.rjsystems.myblog.model.Post;
 import br.com.rjsystems.myblog.repository.filter.PostFilter;
 import br.com.rjsystems.myblog.service.PostService;
 
@@ -30,30 +34,51 @@ public class PostResource {
 
 	@Autowired
 	private PostService postService;
+	
+	@Autowired
+	private PostConverter postConverter;
+	
+	@Autowired
+	private ApplicationEventPublisher publisher;
 
 	@GetMapping
 	public Page<PostDtoGet> findAll(PostFilter postFilter, Pageable pageable) {
-		return postService.findAll(postFilter, pageable);
+		Page<Post> posts = postService.findAll(postFilter, pageable);
+		Page<PostDtoGet> postsDto = posts.map(post -> postConverter.toDtoGet(post));
+		
+		return postsDto;
 	}
 
 	@PostMapping
 	@PreAuthorize("hasAuthority('ROLE_REGISTER_POST') and #oauth2.hasScope('write')")
-	public ResponseEntity<PostDtoGet> insert(@Valid @RequestBody PostDtoCreate post, HttpServletResponse response) {
-		PostDtoGet postSaved = postService.save(post, response);
-		return ResponseEntity.status(HttpStatus.CREATED).body(postSaved);
+	public ResponseEntity<PostDtoGet> insert(@Valid @RequestBody PostDtoCreate postDtoCreate, HttpServletResponse response) {
+		var post = postConverter.toEntity(postDtoCreate);
+		post = postService.save(post, response);
+		publisher.publishEvent(new ResourceCreatedEvent(this, post.getId(), response));
+		
+		var postDtoGet = postConverter.toDtoGet(post);
+		return ResponseEntity.status(HttpStatus.CREATED).body(postDtoGet);
 	}
 
 	@GetMapping("/{id}")
 	public ResponseEntity<PostDtoGet> findById(@PathVariable Long id) {
-		var postDtoGet = postService.findById(id);
-		return postDtoGet != null ? ResponseEntity.ok(postDtoGet) : ResponseEntity.notFound().build();
+		var post = postService.findById(id);
+		if (post == null) {
+			return ResponseEntity.notFound().build();
+		}
+		
+		var postDtoGet = postConverter.toDtoGet(post);
+		return ResponseEntity.ok(postDtoGet); 
 	}
 
 	@PutMapping("/{id}")
 	@PreAuthorize("hasAuthority('ROLE_REGISTER_POST') and #oauth2.hasScope('write')")
-	public ResponseEntity<PostDtoGet> update(@PathVariable Long id, @Valid @RequestBody PostDtoCreate post) {
-		var postSaved = postService.update(id, post);
-		return ResponseEntity.ok(postSaved);
+	public ResponseEntity<PostDtoGet> update(@PathVariable Long id, @Valid @RequestBody PostDtoCreate postDtoCreate) {
+		var post = postConverter.toEntity(postDtoCreate);
+		post = postService.update(id, post);
+		
+		var postDtoGet = postConverter.toDtoGet(post);
+		return ResponseEntity.ok(postDtoGet);
 	}
 
 	@DeleteMapping("/{id}")

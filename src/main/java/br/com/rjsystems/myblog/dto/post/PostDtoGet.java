@@ -1,11 +1,8 @@
 package br.com.rjsystems.myblog.dto.post;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import br.com.rjsystems.myblog.dto.author.AuthorDtoGet;
-import br.com.rjsystems.myblog.model.Post;
 
 public class PostDtoGet {
 
@@ -16,15 +13,6 @@ public class PostDtoGet {
 	private String text;
 	private LocalDate publicationDate;
 	private AuthorDtoGet author;
-	
-	public PostDtoGet(Post post) {
-		this.id = post.getId();
-		this.title = post.getTitle();
-		this.topic = post.getTopic();
-		this.subtopic = post.getSubtopic();
-		this.text = post.getText();
-		this.publicationDate = post.getPublicationDate();
-	}
 
 	public Long getId() {
 		return id;
@@ -80,13 +68,5 @@ public class PostDtoGet {
 
 	public void setAuthor(AuthorDtoGet author) {
 		this.author = author;
-	}
-	
-	public static PostDtoGet converter(Post post) {
-		return new PostDtoGet(post);
-	}
-	
-	public static List<PostDtoGet> converter(List<Post> posts) {
-		return posts.stream().map(PostDtoGet::new).collect(Collectors.toList());
 	}
 }

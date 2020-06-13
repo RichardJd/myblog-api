@@ -25,7 +25,7 @@ INSERT INTO permition (id, description) VALUES (2, 'ROLE_REMOVE_AUTHOR');
 INSERT INTO permition (id, description) VALUES (3, 'ROLE_SEARCH_AUTHOR');
 
 INSERT INTO permition (id, description) VALUES (4, 'ROLE_REGISTER_POST');
-INSERT INTO permition (id, description) VALUES (5, 'ROLE_DELETE_POST');
+INSERT INTO permition (id, description) VALUES (5, 'ROLE_REMOVE_POST');
 
 -- Admin
 INSERT INTO login_permition (id_login, id_permition) VALUES (1, 1);

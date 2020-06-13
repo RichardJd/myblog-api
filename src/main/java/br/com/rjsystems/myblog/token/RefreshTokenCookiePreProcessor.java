@@ -58,6 +58,5 @@ public class RefreshTokenCookiePreProcessor implements Filter {
 			map.setLocked(true);
 			return map;
 		}
-		
 	}
 }

@@ -2,7 +2,6 @@ package br.com.rjsystems.myblog.security;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,9 +24,9 @@ public class AppUserDetailsService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-		Optional<Login> loginOptional = loginRepository.findByEmail(email);
+		var loginOptional = loginRepository.findByEmail(email);
 
-		Login login = loginOptional.orElseThrow(() -> new UsernameNotFoundException("Usuário e/ou senha incorretos"));
+		var login = loginOptional.orElseThrow(() -> new UsernameNotFoundException("Usuário e/ou senha incorretos"));
 		return new User(email, login.getPassword(), getPermitions(login));
 	}
 

@@ -2,27 +2,26 @@ package br.com.rjsystems.myblog.dto.author;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import br.com.rjsystems.myblog.model.Author;
-
 public class AuthorDtoGet {
 
+	private Long id;
+
 	private String login;
-	
+
 	private String name;
-	
+
 	@JsonProperty("avatar_url")
 	private String avatar;
-	
+
 	@JsonProperty("bio")
 	private String biography;
-	
-	public AuthorDtoGet() {}
-	
-	public AuthorDtoGet(Author author) {
-		this.login = author.getLogin();
-		this.name = author.getName();
-		this.avatar = author.getAvatar();
-		this.biography = author.getBiography();
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public String getLogin() {
@@ -55,18 +54,5 @@ public class AuthorDtoGet {
 
 	public void setBiography(String biography) {
 		this.biography = biography;
-	}
-
-	public static AuthorDtoGet converterToDto(Author author) {
-		return new AuthorDtoGet(author);
-	}
-	
-	public static Author convertToAuthor(AuthorDtoGet authorDtoGet) {
-		var author = new Author();
-		author.setLogin(authorDtoGet.getLogin());
-		author.setName(authorDtoGet.getName());
-		author.setAvatar(authorDtoGet.getAvatar());
-		author.setBiography(authorDtoGet.getBiography());
-		return author;
 	}
 }

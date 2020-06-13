@@ -5,8 +5,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import br.com.rjsystems.myblog.model.Post;
-
 public class PostDtoCreate {
 
 	@NotBlank
@@ -64,15 +62,5 @@ public class PostDtoCreate {
 
 	public void setAuthorId(Long authorId) {
 		this.authorId = authorId;
-	}
-	
-	public static Post converterToPost(PostDtoCreate postDtoCreate) {
-		Post post = new Post();
-		post.setTitle(postDtoCreate.getTitle());
-		post.setTopic(postDtoCreate.getTopic());
-		post.setSubtopic(postDtoCreate.getSubtopic());
-		post.setText(postDtoCreate.getText());
-		post.getAuthor().setId(postDtoCreate.getAuthorId());
-		return post;
 	}
 }

@@ -11,6 +11,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.Email;
 
 @Entity
 @Table(name = "login")
@@ -21,6 +22,8 @@ public class Login {
 	private Long id;
 
 	private String name;
+	
+	@Email
 	private String email;
 	private String password;
 

@@ -3,26 +3,31 @@ package br.com.rjsystems.myblog.util;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import br.com.rjsystems.myblog.dto.author.AuthorDtoCreate;
+import br.com.rjsystems.myblog.dto.author.AuthorConverter;
 import br.com.rjsystems.myblog.dto.author.AuthorDtoGet;
+import br.com.rjsystems.myblog.model.Author;
 
 @Component
 public class GetFromGithub {
+	
+	@Autowired 
+	private AuthorConverter authorConverter;
 
 	@Async
-	public AuthorDtoGet importAuthor(AuthorDtoCreate authorDtoCreate) {
+	public Author importAuthor(String login) {
 		try {
 			var restTamplate = new RestTemplate();
-			var authorDto = restTamplate.getForObject("https://api.github.com/users/" + authorDtoCreate.getLogin(),
+			var authorDto = restTamplate.getForObject("https://api.github.com/users/" + login,
 					AuthorDtoGet.class);
 
 			authorDto = CompletableFuture.completedFuture(authorDto).get();
 
-			return authorDto;
+			return authorConverter.toEntity(authorDto);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} catch (ExecutionException e) {

@@ -15,8 +15,8 @@ public class ResourceCreatedListener implements ApplicationListener<ResourceCrea
 
 	@Override
 	public void onApplicationEvent(ResourceCreatedEvent event) {
-		Long id = event.getId();
-		HttpServletResponse response = event.getResponse();
+		var id = event.getId();
+		var response = event.getResponse();
 
 		AddHeaderLocation(id, response);
 	}
