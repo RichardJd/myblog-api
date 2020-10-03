@@ -6,7 +6,8 @@ public class AuthorDtoGet {
 
 	private Long id;
 
-	private String login;
+	@JsonProperty("login")
+	private String githubLogin;
 
 	private String name;
 
@@ -24,12 +25,12 @@ public class AuthorDtoGet {
 		this.id = id;
 	}
 
-	public String getLogin() {
-		return login;
+	public String getGithubLogin() {
+		return githubLogin;
 	}
 
-	public void setLogin(String login) {
-		this.login = login;
+	public void setGithubLogin(String githubLogin) {
+		this.githubLogin = githubLogin;
 	}
 
 	public String getName() {

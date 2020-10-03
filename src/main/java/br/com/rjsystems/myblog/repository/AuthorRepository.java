@@ -6,5 +6,7 @@ import br.com.rjsystems.myblog.model.Author;
 
 public interface AuthorRepository extends JpaRepository<Author, Long> {
 
-	public Author findByLogin(String login);
+	public boolean existsByGithubLogin(String githubLogin);
+	public boolean existsByLoginEmail(String email);
+	public Author findByLoginEmail(String email);
 }

@@ -18,23 +18,21 @@ public class Post {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
+
 	private String title;
-	
 	private String topic;
-	
 	private String subtopic;
-	
+
 	@Column(columnDefinition = "text")
 	private String text;
-	
+
 	@Column(name = "publication_date")
 	private LocalDate publicationDate;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "id_author", nullable = false)
 	private Author author;
-	
+
 	public Post() {
 		this.author = new Author();
 	}

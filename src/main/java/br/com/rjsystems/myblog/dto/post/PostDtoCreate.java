@@ -2,7 +2,6 @@ package br.com.rjsystems.myblog.dto.post;
 
 import javax.persistence.Column;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 public class PostDtoCreate {
@@ -20,9 +19,6 @@ public class PostDtoCreate {
 	@NotBlank
 	@Column(columnDefinition = "text")
 	private String text;
-
-	@NotNull
-	private Long authorId;
 
 	public String getTitle() {
 		return title;
@@ -54,13 +50,5 @@ public class PostDtoCreate {
 
 	public void setText(String text) {
 		this.text = text;
-	}
-
-	public Long getAuthorId() {
-		return authorId;
-	}
-
-	public void setAuthorId(Long authorId) {
-		this.authorId = authorId;
 	}
 }

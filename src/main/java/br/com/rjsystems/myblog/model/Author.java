@@ -1,12 +1,16 @@
 package br.com.rjsystems.myblog.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
+
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 @Entity
 @Table(name = "author")
@@ -15,29 +19,28 @@ public class Author {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-
-	@NotBlank
-	@Size(max = 100)
-	private String login;
-
+	
+	private String githubLogin;
 	private String name;
 	private String avatar;
 	private String biography;
+
+	@OneToOne
+	@JoinColumn(name = "id_login", nullable = false)
+	@Cascade(CascadeType.ALL)
+	private Login login;
 
 	public Long getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
+	@Column(name = "github_login")
+	public String getGithubLogin() {
+		return githubLogin;
 	}
 
-	public String getLogin() {
-		return login;
-	}
-
-	public void setLogin(String login) {
-		this.login = login;
+	public void setGithubLogin(String githubLogin) {
+		this.githubLogin = githubLogin;
 	}
 
 	public String getName() {
@@ -62,6 +65,14 @@ public class Author {
 
 	public void setBiography(String biography) {
 		this.biography = biography;
+	}
+
+	public Login getLogin() {
+		return login;
+	}
+
+	public void setLogin(Login login) {
+		this.login = login;
 	}
 
 	@Override
