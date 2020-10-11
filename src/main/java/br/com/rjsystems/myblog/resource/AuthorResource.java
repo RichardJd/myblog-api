@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -23,7 +24,11 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.rjsystems.myblog.dto.author.AuthorConverter;
 import br.com.rjsystems.myblog.dto.author.AuthorDtoCreate;
 import br.com.rjsystems.myblog.dto.author.AuthorDtoGet;
+import br.com.rjsystems.myblog.dto.author.GithubDtoCreate;
+import br.com.rjsystems.myblog.dto.login.LoginConverter;
+import br.com.rjsystems.myblog.dto.login.LoginDtoCreate;
 import br.com.rjsystems.myblog.event.ResourceCreatedEvent;
+import br.com.rjsystems.myblog.model.Author;
 import br.com.rjsystems.myblog.service.AuthorService;
 
 @RestController
@@ -35,6 +40,9 @@ public class AuthorResource {
 
 	@Autowired
 	private AuthorConverter authorConverter;
+
+	@Autowired
+	private LoginConverter loginConverter;
 
 	@Autowired
 	private ApplicationEventPublisher publisher;
@@ -58,23 +66,28 @@ public class AuthorResource {
 			throws InterruptedException, ExecutionException {
 		var author = authorService.findById(id);
 
-		if (author == null) {
-			return ResponseEntity.notFound().build();
-		}
-
-		var authorDtoGet = authorConverter.toDtoGet(author);
-		return ResponseEntity.ok(authorDtoGet);
+		return responseStatus(author);
 	}
 
 	@PutMapping("/{id}")
 	@PreAuthorize("hasAuthority('ROLE_REGISTER_AUTHOR') and #oauth2.hasScope('write')")
-	public ResponseEntity<AuthorDtoGet> update(@PathVariable Long id,
-			@Valid @RequestBody AuthorDtoCreate authorDtoCreate) {
-		var author = authorConverter.toEntity(authorDtoCreate);
-		author = authorService.update(id, author);
+	public ResponseEntity<AuthorDtoGet> updateGithubInformations(@PathVariable Long id,
+			@Valid @RequestBody GithubDtoCreate githubDtoCreate) {
 
-		var authorDtoGet = authorConverter.toDtoGet(author);
-		return ResponseEntity.ok(authorDtoGet);
+		var author = authorService.updateGithubInformations(id, githubDtoCreate.getGithubLogin());
+
+		return responseStatus(author);
+	}
+
+	@PatchMapping("/{id}/login")
+	@PreAuthorize("hasAuthority('ROLE_REGISTER_AUTHOR') and #oauth2.hasScope('write')")
+	public ResponseEntity<AuthorDtoGet> updateLogin(@PathVariable Long id,
+			@Valid @RequestBody LoginDtoCreate loginDtoCreate) {
+
+		var login = loginConverter.toEntity(loginDtoCreate);
+		var author = authorService.updateLogin(id, login);
+
+		return responseStatus(author);
 	}
 
 	@DeleteMapping("/{id}")
@@ -82,5 +95,14 @@ public class AuthorResource {
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void delete(@PathVariable Long id) {
 		authorService.delete(id);
+	}
+
+	private ResponseEntity<AuthorDtoGet> responseStatus(Author author) {
+		if (author == null) {
+			return ResponseEntity.notFound().build();
+		}
+
+		var authorDtoGet = authorConverter.toDtoGet(author);
+		return ResponseEntity.ok(authorDtoGet);
 	}
 }

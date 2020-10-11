@@ -4,10 +4,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import br.com.rjsystems.myblog.model.Author;
+import br.com.rjsystems.myblog.model.Login;
 import br.com.rjsystems.myblog.repository.AuthorRepository;
 import br.com.rjsystems.myblog.service.AuthorService;
 import br.com.rjsystems.myblog.util.GetFromGithub;
@@ -29,16 +29,16 @@ public class AuthorServiceImpl implements AuthorService {
 
 	@Override
 	public Author save(Author author, HttpServletResponse response) {
-		
+
 		boolean authorExist = authorRepository.existsByGithubLogin(author.getGithubLogin());
 		boolean emailExist = authorRepository.existsByLoginEmail(author.getLogin().getEmail());
-		
+
 		if (authorExist || emailExist) {
 			throw new DataIntegrityViolationException("Author já cadastrado ou e-mail em uso");
 		}
-		
+
 		var githubAuthor = getFromGithub.importAuthor(author.getGithubLogin());
-		
+
 		author.setAvatar(githubAuthor.getAvatar());
 		author.setBiography(githubAuthor.getBiography());
 		author.setName(githubAuthor.getName());
@@ -48,31 +48,42 @@ public class AuthorServiceImpl implements AuthorService {
 	}
 
 	@Override
-	public Author update(Long id, Author author) {
-		author = getFromGithub.importAuthor(author.getGithubLogin());
-		var savedAuthor = getAuthor(id);
+	public Author updateGithubInformations(Long id, String githubLogin) {
+		var author = this.findById(id);
 
-		savedAuthor.setLogin(author.getLogin());
-		savedAuthor.setName(author.getName());
-		savedAuthor.setAvatar(author.getAvatar());
-		savedAuthor.setBiography(author.getBiography());
+		if (author == null) {
+			return null;
+		}
 
-		savedAuthor = authorRepository.save(savedAuthor);
+		var githubAuthor = getFromGithub.importAuthor(githubLogin);
 
-		return savedAuthor;
+		author.setGithubLogin(githubAuthor.getGithubLogin());
+		author.setName(githubAuthor.getName());
+		author.setAvatar(githubAuthor.getAvatar());
+		author.setBiography(githubAuthor.getBiography());
+
+		author = authorRepository.save(author);
+
+		return author;
+	}
+
+	@Override
+	public Author updateLogin(Long id, Login login) {
+		var author = this.findById(id);
+		if (author == null) {
+			return null;
+		}
+
+		author.getLogin().setEmail(login.getEmail());
+		author.getLogin().setPassword(login.getPassword());
+
+		authorRepository.save(author);
+
+		return author;
 	}
 
 	@Override
 	public void delete(Long id) {
 		authorRepository.deleteById(id);
-	}
-
-	private Author getAuthor(Long id) {
-		var author = authorRepository.findById(id);
-		if (author.isEmpty()) {
-			throw new EmptyResultDataAccessException(1);
-		}
-
-		return author.get();
 	}
 }
