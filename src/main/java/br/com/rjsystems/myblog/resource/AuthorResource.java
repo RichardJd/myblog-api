@@ -64,8 +64,8 @@ public class AuthorResource {
 	@PreAuthorize("hasAuthority('ROLE_SEARCH_AUTHOR') and #oauth2.hasScope('read')")
 	public ResponseEntity<AuthorDtoGet> findById(@PathVariable Long id)
 			throws InterruptedException, ExecutionException {
-		var author = authorService.findById(id);
 
+		var author = authorService.findById(id);
 		return responseStatus(author);
 	}
 
@@ -75,7 +75,6 @@ public class AuthorResource {
 			@Valid @RequestBody GithubDtoCreate githubDtoCreate) {
 
 		var author = authorService.updateGithubInformations(id, githubDtoCreate.getGithubLogin());
-
 		return responseStatus(author);
 	}
 

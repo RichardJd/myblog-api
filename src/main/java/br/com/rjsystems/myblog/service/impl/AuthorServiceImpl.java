@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import br.com.rjsystems.myblog.model.Author;
@@ -39,6 +40,7 @@ public class AuthorServiceImpl implements AuthorService {
 
 		var githubAuthor = getFromGithub.importAuthor(author.getGithubLogin());
 
+		author.getLogin().setPassword(encriptPassword(author.getLogin().getPassword()));
 		author.setAvatar(githubAuthor.getAvatar());
 		author.setBiography(githubAuthor.getBiography());
 		author.setName(githubAuthor.getName());
@@ -85,5 +87,10 @@ public class AuthorServiceImpl implements AuthorService {
 	@Override
 	public void delete(Long id) {
 		authorRepository.deleteById(id);
+	}
+
+	private String encriptPassword(String password) {
+		var encoder = new BCryptPasswordEncoder();
+		return encoder.encode(password);
 	}
 }
