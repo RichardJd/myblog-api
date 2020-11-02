@@ -88,6 +88,20 @@ public class PostServiceImpl implements PostService {
 
 	@Override
 	public void delete(Long id) {
+		var optionalPost = postRepository.findById(id);
+		if (optionalPost.isEmpty()) {
+			throw new EmptyResultDataAccessException(1);
+		}
+
+		var author = this.getCurrentAuthorEmail();
+		if (author == null) {
+			throw new DataIntegrityViolationException("Author logged not found");
+		}
+
+		if (!optionalPost.get().getAuthor().equals(author)) {
+			throw new DataIntegrityViolationException("Logged author is not allowed to delete this item");
+		}
+		
 		postRepository.deleteById(id);
 	}
 
@@ -98,10 +112,5 @@ public class PostServiceImpl implements PostService {
 			currentUserName = authentication.getName();
 		}
 		return (currentUserName.equals("")) ? null : this.authorRepository.findByLoginEmail(currentUserName).get();
-	}
-	
-	private String encriptPassword(String password) {
-		var encoder = new BCryptPasswordEncoder();
-		return encoder.encode(password);
 	}
 }

@@ -76,8 +76,14 @@ public class AuthorServiceImpl implements AuthorService {
 			return null;
 		}
 
+		boolean isMyEmail = author.getLogin().getEmail().equals(login.getEmail());
+		boolean emailExist = authorRepository.existsByLoginEmail(login.getEmail());
+		if (!isMyEmail && emailExist) {
+			throw new DataIntegrityViolationException("E-mail já está em uso");
+		}
+			
 		author.getLogin().setEmail(login.getEmail());
-		author.getLogin().setPassword(login.getPassword());
+		author.getLogin().setPassword(encriptPassword(login.getPassword()));
 
 		authorRepository.save(author);
 
