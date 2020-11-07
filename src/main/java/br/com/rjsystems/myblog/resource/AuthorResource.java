@@ -5,6 +5,8 @@ import java.util.concurrent.ExecutionException;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
@@ -34,6 +36,8 @@ import br.com.rjsystems.myblog.service.AuthorService;
 @RestController
 @RequestMapping("/authors")
 public class AuthorResource {
+	
+	private static Logger logger = LoggerFactory.getLogger(AuthorResource.class);
 
 	@Autowired
 	private AuthorService authorService;
@@ -52,11 +56,13 @@ public class AuthorResource {
 	public ResponseEntity<AuthorDtoGet> insert(@Valid @RequestBody AuthorDtoCreate authorDtoCreate,
 			HttpServletResponse response) {
 
+		logger.info("Iniciando inserção de autor...");
 		var author = authorConverter.toEntity(authorDtoCreate);
-		author = authorService.save(author, response);
+		author = authorService.save(author);
 		publisher.publishEvent(new ResourceCreatedEvent(this, author.getId(), response));
 
 		var authorDtoGet = authorConverter.toDtoGet(author);
+		logger.info("Finalizando inserção de autor...");
 		return ResponseEntity.status(HttpStatus.CREATED).body(authorDtoGet);
 	}
 
@@ -74,7 +80,9 @@ public class AuthorResource {
 	public ResponseEntity<AuthorDtoGet> updateGithubInformations(@PathVariable Long id,
 			@Valid @RequestBody GithubDtoCreate githubDtoCreate) {
 
+		logger.info("Iniciando atualização de informações...");
 		var author = authorService.updateGithubInformations(id, githubDtoCreate.getGithubLogin());
+		logger.info("Finalizando atualização de informações...");
 		return responseStatus(author);
 	}
 
@@ -83,8 +91,10 @@ public class AuthorResource {
 	public ResponseEntity<AuthorDtoGet> updateLogin(@PathVariable Long id,
 			@Valid @RequestBody LoginDtoCreate loginDtoCreate) {
 
+		logger.info("Iniciando atualização de informações de login...");
 		var login = loginConverter.toEntity(loginDtoCreate);
 		var author = authorService.updateLogin(id, login);
+		logger.info("Finalizando atualização de informações de login...");
 
 		return responseStatus(author);
 	}
@@ -93,7 +103,9 @@ public class AuthorResource {
 	@PreAuthorize("hasAuthority('ROLE_REMOVE_AUTHOR') and #oauth2.hasScope('write')")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void delete(@PathVariable Long id) {
+		logger.info("Iniciando remoção de autor...");
 		authorService.delete(id);
+		logger.info("Finalizando remoção de autor...");
 	}
 
 	private ResponseEntity<AuthorDtoGet> responseStatus(Author author) {
