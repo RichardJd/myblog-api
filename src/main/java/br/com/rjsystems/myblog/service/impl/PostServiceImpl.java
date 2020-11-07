@@ -2,8 +2,6 @@ package br.com.rjsystems.myblog.service.impl;
 
 import java.time.LocalDate;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -13,7 +11,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import br.com.rjsystems.myblog.model.Author;
@@ -45,7 +42,7 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
-	public Post save(Post post, HttpServletResponse response) {
+	public Post save(Post post) {
 
 		var author = this.getCurrentAuthorEmail();
 

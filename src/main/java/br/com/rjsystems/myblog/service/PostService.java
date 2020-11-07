@@ -1,7 +1,5 @@
 package br.com.rjsystems.myblog.service;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -12,7 +10,7 @@ public interface PostService {
 
 	Page<Post> findAll(PostFilter postFilter, Pageable pageable);
 	Post findById(Long id);
-	Post save(Post post, HttpServletResponse response);
+	Post save(Post post);
 	Post update(Long id, Post post);
 	void delete(Long id);
 }

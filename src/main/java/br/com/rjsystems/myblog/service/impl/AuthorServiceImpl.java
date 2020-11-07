@@ -1,7 +1,5 @@
 package br.com.rjsystems.myblog.service.impl;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -29,7 +27,7 @@ public class AuthorServiceImpl implements AuthorService {
 	}
 
 	@Override
-	public Author save(Author author, HttpServletResponse response) {
+	public Author save(Author author) {
 
 		boolean authorExist = authorRepository.existsByGithubLogin(author.getGithubLogin());
 		boolean emailExist = authorRepository.existsByLoginEmail(author.getLogin().getEmail());
@@ -55,6 +53,13 @@ public class AuthorServiceImpl implements AuthorService {
 
 		if (author == null) {
 			return null;
+		}
+		
+		boolean isMyLogin = author.getGithubLogin().equals(githubLogin);
+		boolean accountInUse = authorRepository.existsByGithubLogin(githubLogin);
+
+		if (!isMyLogin && accountInUse) {
+			throw new DataIntegrityViolationException("Esta conta do github já está em uso.");
 		}
 
 		var githubAuthor = getFromGithub.importAuthor(githubLogin);
