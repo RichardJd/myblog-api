@@ -23,7 +23,7 @@ public class TokenResource {
 	public void revoke(HttpServletRequest request, HttpServletResponse response) {
 		var cookie = new Cookie("refreshToken", null);
 		cookie.setHttpOnly(true);
-		cookie.setSecure(myBlogProperty.getSeguranca().isEnableHttps());
+		cookie.setSecure(myBlogProperty.getSecurity().isEnableHttps());
 		cookie.setPath(request.getContextPath() + "/oauth/token");
 		cookie.setMaxAge(0);
 		
